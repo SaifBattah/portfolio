@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -902,7 +903,7 @@
         <div class="info-icon">📧</div>
         <div>
           <div class="info-key">Email</div>
-          <div class="info-val"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3d6e5c545b7f5c49495c557f484e5453584e4e7d5a505c5451135e5250">[email&#160;protected]</a></div>
+          <div class="info-val"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3d6e5c545b7f5c49495c557f484e5453584e4e7d5a505c5451135e5250">Saifbattahbusiness@gmail.com</a></div>
         </div>
       </div>
     </div>
@@ -1158,7 +1159,7 @@
           <span class="contact-link-icon">✉️</span>
           <div>
             <div class="contact-link-label">Email</div>
-            <div class="contact-link-text"><span class="__cf_email__" data-cfemail="6437050d0226051010050c2611170d0a011717240309050d084a070b09">[email&#160;protected]</span></div>
+            <div class="contact-link-text"><span class="__cf_email__" data-cfemail="6437050d0226051010050c2611170d0a011717240309050d084a070b09">Saifbattahbusiness@gmail.com</span></div>
           </div>
         </a>
         <a href="tel:+972595556418" class="contact-link">
@@ -1207,11 +1208,17 @@
 
 <!-- FOOTER -->
 <footer>
-  <div class="footer-left">© 2025 Saif Battah. All rights reserved.</div>
+  <div class="footer-left">© 2026 Saif Battah. All rights reserved.</div>
   <div class="footer-counter" title="Total profile visitors">
     <div class="footer-counter-dot"></div>
-    <span>visitors&nbsp;</span>
-    <span class="footer-counter-num" id="visitorCount">—</span>
+    <img
+      src="https://api.visitorbadge.in/api/visitors?path=https%3A%2F%2Fsaifbattah.github.io%2Fportfolio&label=visitors&labelColor=%23151820&countColor=%237dd3fc&style=flat&labelStyle=none"
+      alt="visitor count"
+      id="visitorBadge"
+      style="height:18px;vertical-align:middle;border-radius:4px;"
+      onerror="this.style.display='none';document.getElementById('visitorFallback').style.display='inline';"
+    />
+    <span id="visitorFallback" style="display:none;color:var(--accent);font-weight:600;">visitors</span>
   </div>
   <div class="footer-right">Built with <span>♥</span> &amp; clean code.</div>
 </footer>
@@ -2123,47 +2130,5 @@ var projects = {
 
 })();
 </script>
-
-  <script>
-    // ── Visitor counter ───────────────────────────────────────────
-    // After deploying, replace YOUR-GITHUB-USERNAME with your actual username
-    (function () {
-      var username = 'SaifBattah';
-      var repo     = 'portfolio'; // match your GitHub repo name
-      var hitsUrl  = 'https://hits.seeyoufarm.com/api/count/incr/badge.svg'
-                   + '?url=https%3A%2F%2F' + username + '.github.io%2F' + repo
-                   + '&count_bg=%237dd3fc&title_bg=%23151820'
-                   + '&icon=github&icon_color=%23e8eaf0'
-                   + '&title=visitors&edge_flat=true';
-
-      // Try hits.sh JSON endpoint for a clean number
-      fetch('https://hits.sh/' + username + '.github.io/' + repo + '.json')
-        .then(function (r) { return r.json(); })
-        .then(function (d) {
-          var el = document.getElementById('visitorCount');
-          if (el && d && d.total != null) {
-            animateCount(el, parseInt(d.total));
-          }
-        })
-        .catch(function () {
-          // Fallback: embed the SVG badge itself
-          var el = document.getElementById('visitorCount');
-          if (el) {
-            el.innerHTML = '<img src="' + hitsUrl + '" alt="visitor count"'
-              + ' style="height:18px;vertical-align:middle;border-radius:3px;margin-top:-1px;" />';
-          }
-        });
-
-      function animateCount(el, target) {
-        var start = 0, duration = 1200;
-        var step = Math.ceil(target / (duration / 16));
-        var timer = setInterval(function () {
-          start = Math.min(start + step, target);
-          el.textContent = start.toLocaleString();
-          if (start >= target) clearInterval(timer);
-        }, 16);
-      }
-    }());
-  </script>
 </body>
 </html>
