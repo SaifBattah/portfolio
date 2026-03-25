@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -903,7 +902,7 @@
         <div class="info-icon">📧</div>
         <div>
           <div class="info-key">Email</div>
-          <div class="info-val"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3d6e5c545b7f5c49495c557f484e5453584e4e7d5a505c5451135e5250">Saifbattahbusiness@gmail.com</a></div>
+          <div class="info-val"><a href="mailto:Saifbattahbusiness@gmail.com" style="color:inherit;text-decoration:none;">Saifbattahbusiness@gmail.com</a></div>
         </div>
       </div>
     </div>
@@ -1144,6 +1143,34 @@
       <button class="view-project-btn" data-project="voice">Open Project ↗</button>
     </div>
 
+    <!-- AKOOSH -->
+    <div class="project-card featured" style="grid-column: span 3; background: linear-gradient(135deg, rgba(255,107,43,0.04), rgba(0,212,255,0.04)); border-color: rgba(255,107,43,0.18);">
+      <div class="project-type">Freelance · Web Platform</div>
+      <div class="project-name" style="background: linear-gradient(135deg,#FF6B2B,#00D4FF); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">AKOOSH</div>
+      <p class="project-desc">A dual-brand web platform serving two businesses under one roof — a specialty cafe and a modern barbershop. Features a cinematic split-screen landing page, a full cafe menu, barbershop services with appointment booking, location info, and a social hub. Built bilingual with Arabic + English support.</p>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin: 1.25rem 0;">
+        <div class="his-module" style="border-color:rgba(255,107,43,0.25); background:rgba(255,107,43,0.04);">
+          <div class="his-module-icon">☕</div>
+          <div class="his-module-name">Akoosh Cafe</div>
+          <div class="his-module-desc">Split-screen hero landing, full menu with categories, bilingual item cards (Arabic + English), ordering flow, and location section.</div>
+        </div>
+        <div class="his-module" style="border-color:rgba(0,212,255,0.25); background:rgba(0,212,255,0.04);">
+          <div class="his-module-icon">✂️</div>
+          <div class="his-module-name">Akoosh Barbershop</div>
+          <div class="his-module-desc">Services grid with pricing, appointment booking form, barber profiles, hours, and social media hub linking all channels.</div>
+        </div>
+      </div>
+      <div class="project-tech">
+        <span class="tech-pill">HTML</span>
+        <span class="tech-pill">CSS</span>
+        <span class="tech-pill">JavaScript</span>
+        <span class="tech-pill">Node.js</span>
+        <span class="tech-pill">Responsive</span>
+        <span class="tech-pill">Bilingual</span>
+      </div>
+      <button class="view-project-btn" data-project="akoosh" style="margin-top:1.25rem; background:linear-gradient(135deg,#FF6B2B,#e05a20);">Open Project ↗</button>
+    </div>
+
   </div>
 </section>
 
@@ -1155,11 +1182,11 @@
     <div class="contact-left reveal">
       <p>I'm always open to new opportunities, collaborations, or just a good conversation about tech. Feel free to reach out through any channel.</p>
       <div class="contact-links">
-        <a href="/cdn-cgi/l/email-protection#2576444c4367445151444d6750564c4b405656654248444c490b464a48" class="contact-link">
+        <a href="mailto:Saifbattahbusiness@gmail.com" class="contact-link">
           <span class="contact-link-icon">✉️</span>
           <div>
             <div class="contact-link-label">Email</div>
-            <div class="contact-link-text"><span class="__cf_email__" data-cfemail="6437050d0226051010050c2611170d0a011717240309050d084a070b09">Saifbattahbusiness@gmail.com</span></div>
+            <div class="contact-link-text">Saifbattahbusiness@gmail.com</div>
           </div>
         </a>
         <a href="tel:+972595556418" class="contact-link">
@@ -1189,17 +1216,17 @@
       <h3>Send a Message</h3>
       <div class="form-group">
         <label>Name</label>
-        <input type="text" placeholder="Your name" />
+        <input type="text" placeholder="Your name" id="contactName" />
       </div>
       <div class="form-group">
         <label>Email</label>
-        <input type="email" placeholder="your@email.com" />
+        <input type="email" placeholder="your@email.com" id="contactEmail" />
       </div>
       <div class="form-group">
         <label>Message</label>
-        <textarea placeholder="What's on your mind?"></textarea>
+        <textarea placeholder="What's on your mind?" id="contactMessage"></textarea>
       </div>
-      <button class="btn btn-primary" style="width:100%;justify-content:center;border:none;font-size:0.8rem;" onclick="this.textContent='Message Sent ✓';this.style.background='#10b981'">
+      <button class="btn btn-primary" style="width:100%;justify-content:center;border:none;font-size:0.8rem;" id="contactSendBtn">
         Send Message →
       </button>
     </div>
@@ -1208,7 +1235,7 @@
 
 <!-- FOOTER -->
 <footer>
-  <div class="footer-left">© 2026 Saif Battah. All rights reserved.</div>
+  <div class="footer-left">© 2025 Saif Battah. All rights reserved.</div>
   <div class="footer-counter" title="Total profile visitors">
     <div class="footer-counter-dot"></div>
     <img
@@ -1382,6 +1409,25 @@ var projects = {
       { lang: 'Python', desc: 'Intent classification and order routing',
         snippet: '<span class="code-kw">def</span> <span class="code-fn">process_input</span>(transcript, session):\n    intent = llm_chain.<span class="code-fn">classify_intent</span>(transcript)\n    <span class="code-kw">if</span> intent == <span class="code-str">"order"</span>:\n        items = <span class="code-fn">extract_order_items</span>(transcript)\n        session.cart.<span class="code-fn">extend</span>(items)\n        <span class="code-kw">return</span> tts.<span class="code-fn">speak</span>(<span class="code-str">"Items added to your order."</span>)\n    <span class="code-kw">elif</span> intent == <span class="code-str">"query_menu"</span>:\n        item = <span class="code-fn">extract_menu_item</span>(transcript)\n        <span class="code-kw">return</span> tts.<span class="code-fn">speak</span>(menu_db.<span class="code-fn">get_item_info</span>(item).description)\n    <span class="code-kw">elif</span> intent == <span class="code-str">"confirm_order"</span>:\n        <span class="code-kw">return</span> <span class="code-fn">finalize_order</span>(session)\n    <span class="code-kw">else</span>:\n        <span class="code-kw">return</span> tts.<span class="code-fn">speak</span>(<span class="code-str">"Sorry, could you repeat that?"</span>)' }
     ]
+  },
+
+  akoosh: {
+    type: 'Freelance · Web Platform',
+    title: 'AKOOSH — Cafe & Barbershop',
+    desc: 'A dual-brand web platform for two businesses sharing one space — a specialty cafe and a modern barbershop. Features a cinematic split-screen landing, full menu, appointment booking, bilingual Arabic/English content, location info, and a complete social hub.',
+    features: [
+      { icon: '🎬', title: 'Split-Screen Landing', text: 'Cinematic full-viewport hero that expands toward whichever side the user hovers — cafe or barbershop — with smooth CSS transitions and brand-specific color themes.' },
+      { icon: '☕', title: 'Cafe Menu', text: 'Full categorized menu with bilingual item cards (Arabic + English), pricing, descriptions, and a smooth ordering flow.' },
+      { icon: '✂️', title: 'Barbershop Booking', text: 'Services grid with pricing, appointment booking form, barber profiles, and working hours per day.' },
+      { icon: '🌐', title: 'Bilingual & Social', text: 'Full Arabic + English support with RTL handling. Social hub connecting TikTok, Instagram, Snapchat, WhatsApp, and Facebook.' }
+    ],
+    tech: ['HTML', 'CSS', 'JavaScript', 'Node.js', 'Responsive Design', 'Bilingual / RTL'],
+    screenshots: [],
+    code: [
+      { lang: 'CSS', desc: 'Split-screen hover expansion effect',
+        snippet: '<span class="code-sel">.split-side</span> {\n  <span class="code-prop">flex</span>: <span class="code-val">1</span>;\n  <span class="code-prop">transition</span>: <span class="code-val">flex 0.7s cubic-bezier(0.77, 0, 0.175, 1)</span>;\n}\n<span class="code-sel">.split-side:hover</span> {\n  <span class="code-prop">flex</span>: <span class="code-val">1.45</span>;\n}\n<span class="code-sel">.split-bg</span> {\n  <span class="code-prop">transition</span>: <span class="code-val">transform 0.8s cubic-bezier(0.77, 0, 0.175, 1)</span>;\n}\n<span class="code-sel">.split-side:hover .split-bg</span> {\n  <span class="code-prop">transform</span>: <span class="code-val">scale(1.04)</span>;\n}' }
+    ],
+    demoUrl: '~/akoosh/index.html'
   }
 };
 
@@ -1692,6 +1738,16 @@ var projects = {
         + '<div class="pp-demo-note">Describe any screen in plain language → AI parses it → generates JSON schema → saves to DB → renders the live .aspx screen</div>'
         + '<div id="ppDemoMount"></div>'
         + '</section>';
+    }
+
+    if (key === 'akoosh') {
+      demoSection = '<section class="pp-section"><div class="pp-section-label">Live Demo</div>'
+        + '<div class="pp-demo-note">The full AKOOSH website opens in a new tab — split-screen landing, cafe menu, and barbershop booking.</div>'
+        + '<div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:1rem;">'
+        + '<a href="./akoosh/index.html" target="_blank" style="display:inline-flex;align-items:center;gap:8px;padding:.75rem 1.75rem;background:linear-gradient(135deg,#FF6B2B,#e05a20);color:#fff;border-radius:10px;font-weight:700;font-size:.9rem;text-decoration:none;font-family:Outfit,sans-serif;transition:opacity .2s;" onmouseover="this.style.opacity=.85" onmouseout="this.style.opacity=1">🚀 Open Live Demo ↗</a>'
+        + '<a href="./akoosh/cafe.html" target="_blank" style="display:inline-flex;align-items:center;gap:8px;padding:.75rem 1.5rem;background:rgba(255,107,43,0.12);border:1px solid rgba(255,107,43,0.3);color:#FF6B2B;border-radius:10px;font-weight:600;font-size:.88rem;text-decoration:none;font-family:Outfit,sans-serif;">☕ Cafe Page</a>'
+        + '<a href="./akoosh/barbershop.html" target="_blank" style="display:inline-flex;align-items:center;gap:8px;padding:.75rem 1.5rem;background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.25);color:#00D4FF;border-radius:10px;font-weight:600;font-size:.88rem;text-decoration:none;font-family:Outfit,sans-serif;">✂️ Barbershop Page</a>'
+        + '</div></section>';
     }
 
     var pageHTML = '<!DOCTYPE html><html lang="en"><head>'
@@ -2128,7 +2184,23 @@ var projects = {
     navLinks.forEach(function(a){ a.style.color = a.getAttribute('href') === '#' + cur ? 'var(--accent)' : ''; });
   });
 
-})();
-</script>
-</body>
-</html>
+  // ── Contact form — open mailto on send ───────────────────────
+  var contactBtn = document.getElementById('contactSendBtn');
+  if (contactBtn) {
+    contactBtn.addEventListener('click', function () {
+      var name    = (document.getElementById('contactName').value    || '').trim();
+      var email   = (document.getElementById('contactEmail').value   || '').trim();
+      var message = (document.getElementById('contactMessage').value || '').trim();
+
+      if (!name && !message) {
+        contactBtn.textContent = 'Please fill in your message ↑';
+        setTimeout(function () { contactBtn.textContent = 'Send Message →'; }, 2000);
+        return;
+      }
+
+      var subject = encodeURIComponent('Portfolio Inquiry' + (name ? ' from ' + name : ''));
+      var body    = encodeURIComponent(
+        (name  ? 'Name: '  + name  + '\n' : '') +
+        (email ? 'Email: ' + email + '\n' : '') +
+        (name || email ? '\n' : '') +
+        (message |
