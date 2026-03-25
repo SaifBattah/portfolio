@@ -2117,7 +2117,7 @@ var projects = {
   document.addEventListener('click', function(e) {
     // Open modal
     var opener = e.target.closest('[data-project]');
-    if (opener) { openProjectPage(opener.getAttribute('data-project')); return; }
+    if (opener) { openModal(opener.getAttribute('data-project')); return; }
 
     // Close modal button
     var closer = e.target.closest('[data-action="close"]');
