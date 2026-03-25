@@ -2057,7 +2057,14 @@ var projects = {
 
     var blob = new Blob([pageHTML], {type:'text/html'});
     var url  = URL.createObjectURL(blob);
-    window.open(url, '_blank');
+    var a = document.createElement('a');
+    a.href = url;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 10000);
   }
 
   function buildDynscreenDemoScript() {
