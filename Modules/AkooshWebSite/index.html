@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AKOOSH — Cafe & Barbershop</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    /* ── LANDING SPECIFIC ── */
+
+    /* Split screen selector */
+    .split-wrap {
+      position: relative;
+      height: 100vh;
+      display: flex;
+      overflow: hidden;
+    }
+
+    .split-side {
+      flex: 1;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 64px 56px;
+      cursor: pointer;
+      transition: flex 0.7s cubic-bezier(0.77, 0, 0.175, 1);
+      text-decoration: none;
+      overflow: hidden;
+    }
+
+    .split-side:hover { flex: 1.45; }
+
+    .split-bg {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
+    }
+    .split-side:hover .split-bg { transform: scale(1.04); }
+
+    .split-overlay {
+      position: absolute;
+      inset: 0;
+      transition: opacity 0.5s ease;
+    }
+
+    .split-cafe .split-bg {
+      background: linear-gradient(160deg, #3d1a00 0%, #7a3510 30%, #2a0f00 100%);
+    }
+    .split-cafe .split-overlay {
+      background: linear-gradient(to top, rgba(8,8,8,0.9) 0%, rgba(61,26,0,0.4) 60%, transparent 100%);
+    }
+
+    .split-barber .split-bg {
+      background: linear-gradient(160deg, #0a0a14 0%, #1a1a2e 40%, #050508 100%);
+    }
+    .split-barber .split-overlay {
+      background: linear-gradient(to top, rgba(8,8,8,0.92) 0%, rgba(10,10,20,0.4) 60%, transparent 100%);
+    }
+
+    /* Grid pattern on barber side */
+    .split-barber .split-bg::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: repeating-linear-gradient(0deg, rgba(0,212,255,0.03) 0px, rgba(0,212,255,0.03) 1px, transparent 1px, transparent 60px),
+                        repeating-linear-gradient(90deg, rgba(0,212,255,0.03) 0px, rgba(0,212,255,0.03) 1px, transparent 1px, transparent 60px);
+    }
+
+    /* Dotted pattern on cafe side */
+    .split-cafe .split-bg::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(255,107,43,0.08) 1px, transparent 1px);
+      background-size: 30px 30px;
+    }
+
+    .split-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      width: 100%;
+    }
+
+    .split-badge {
+      display: inline-block;
+      padding: 6px 16px;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 50px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 20px;
+    }
+
+    .split-label {
+      font-family: var(--font-display);
+      font-size: clamp(3.5rem, 7vw, 6.5rem);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #fff;
+      display: block;
+      margin-bottom: 10px;
+      transition: color 0.3s ease;
+    }
+
+    .split-cafe:hover .split-label { color: var(--accent-cafe); }
+    .split-barber:hover .split-label { color: var(--accent-barber); }
+
+    .split-desc {
+      color: rgba(255,255,255,0.5);
+      font-size: 0.88rem;
+      letter-spacing: 0.05em;
+      margin-bottom: 28px;
+      transition: color 0.3s ease;
+    }
+    .split-side:hover .split-desc { color: rgba(255,255,255,0.8); }
+
+    .split-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 30px;
+      border-radius: 50px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: all 0.35s ease;
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    .split-side:hover .split-cta {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .split-cafe .split-cta { background: var(--accent-cafe); color: #fff; }
+    .split-barber .split-cta { background: var(--accent-barber); color: #000; }
+
+    /* Vertical divider line */
+    .split-divider {
+      position: absolute;
+      top: 0; bottom: 0;
+      left: 50%;
+      width: 1px;
+      background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.15) 30%, rgba(255,255,255,0.15) 70%, transparent);
+      z-index: 5;
+      pointer-events: none;
+      transition: left 0.7s cubic-bezier(0.77, 0, 0.175, 1);
+    }
+
+    /* Center logo overlay */
+    .center-logo {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+      text-align: center;
+      pointer-events: none;
+    }
+
+    .center-logo .brand-name {
+      font-family: var(--font-display);
+      font-size: clamp(3rem, 8vw, 7rem);
+      letter-spacing: 0.3em;
+      color: #fff;
+      text-transform: uppercase;
+      line-height: 1;
+      text-shadow: 0 4px 40px rgba(0,0,0,0.8);
+    }
+
+    .center-logo .brand-tagline {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      margin-top: 8px;
+    }
+
+    /* Scroll indicator */
+    .scroll-hint {
+      position: absolute;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255,255,255,0.3);
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      animation: float 2s ease-in-out infinite;
+    }
+    .scroll-hint .arrow { font-size: 1.2rem; }
+    @keyframes float { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(6px); } }
+
+    /* ── ABOUT STRIP ── */
+    .about-strip {
+      background: var(--accent);
+      overflow: hidden;
+    }
+    .ticker {
+      display: flex;
+      white-space: nowrap;
+      padding: 18px 0;
+      animation: ticker 20s linear infinite;
+    }
+    .ticker-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 20px;
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #000;
+      padding-right: 48px;
+    }
+    .ticker-dot { width: 6px; height: 6px; background: #000; border-radius: 50%; opacity: 0.4; }
+    @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    /* ── LOCATION SECTION ── */
+    .location-section { background: var(--surface); }
+
+    .location-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: start;
+    }
+
+    .map-placeholder {
+      aspect-ratio: 4/3;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      position: relative;
+      background: var(--surface-2);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+    .map-placeholder .map-icon { font-size: 3rem; opacity: 0.3; }
+    .map-placeholder .map-text {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .map-placeholder .map-grid-lines {
+      position: absolute;
+      inset: 0;
+      background-image:
+        repeating-linear-gradient(0deg, var(--border) 0, var(--border) 1px, transparent 1px, transparent 60px),
+        repeating-linear-gradient(90deg, var(--border) 0, var(--border) 1px, transparent 1px, transparent 60px);
+    }
+    .map-placeholder .map-pin {
+      position: absolute;
+      width: 16px; height: 16px;
+      background: var(--accent);
+      border-radius: 50%;
+      box-shadow: 0 0 0 6px rgba(202,255,0,0.15), 0 0 0 12px rgba(202,255,0,0.07);
+      animation: pulse-pin 2s ease-in-out infinite;
+    }
+    @keyframes pulse-pin {
+      0%,100% { box-shadow: 0 0 0 6px rgba(202,255,0,0.15), 0 0 0 12px rgba(202,255,0,0.07); }
+      50% { box-shadow: 0 0 0 10px rgba(202,255,0,0.12), 0 0 0 20px rgba(202,255,0,0.05); }
+    }
+
+    .location-info { display: flex; flex-direction: column; gap: 28px; }
+
+    .location-card {
+      padding: 28px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      transition: var(--transition);
+    }
+    .location-card:hover { border-color: var(--border-hover); }
+
+    .location-card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .location-icon {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+
+    .lc-cafe .location-icon { background: rgba(255,107,43,0.15); }
+    .lc-barber .location-icon { background: rgba(0,212,255,0.1); }
+
+    .location-card-title {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .hours-list { display: flex; flex-direction: column; gap: 8px; }
+    .hours-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+    .hours-row .day { color: var(--text); font-weight: 600; }
+
+    .address-line {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+    .address-line span:first-child { font-size: 1rem; margin-top: 1px; }
+
+    /* ── SOCIAL HUB SECTION ── */
+    .social-hub { background: var(--bg); }
+
+    .social-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 56px;
+    }
+
+    .social-card {
+      padding: 32px 28px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      transition: all 0.4s var(--ease);
+      position: relative;
+      overflow: hidden;
+    }
+    .social-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    .social-card:hover { transform: translateY(-4px); border-color: var(--border-hover); }
+    .social-card:hover::before { opacity: 1; }
+
+    .sc-tiktok::before { background: radial-gradient(circle at bottom left, rgba(0,242,234,0.07), transparent 60%); }
+    .sc-instagram::before { background: radial-gradient(circle at bottom left, rgba(225,48,108,0.08), transparent 60%); }
+    .sc-facebook::before { background: radial-gradient(circle at bottom left, rgba(24,119,242,0.08), transparent 60%); }
+    .sc-snapchat::before { background: radial-gradient(circle at bottom left, rgba(255,252,0,0.08), transparent 60%); }
+    .sc-whatsapp::before { background: radial-gradient(circle at bottom left, rgba(37,211,102,0.08), transparent 60%); }
+    .sc-phone::before { background: radial-gradient(circle at bottom left, rgba(202,255,0,0.08), transparent 60%); }
+
+    .social-card-icon {
+      font-size: 2rem;
+      line-height: 1;
+    }
+    .social-card-name {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text);
+    }
+    .social-card-handle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    .social-card-arrow {
+      margin-top: auto;
+      font-size: 1.3rem;
+      color: var(--text-dim);
+      transition: var(--transition);
+      align-self: flex-end;
+    }
+    .social-card:hover .social-card-arrow { color: var(--accent); transform: translate(3px, -3px); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .split-side { padding: 40px 28px; }
+      .split-label { font-size: 3.5rem; }
+      .location-grid { grid-template-columns: 1fr; }
+      .social-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 540px) {
+      .split-badge { display: none; }
+      .social-grid { grid-template-columns: 1fr; }
+      .center-logo .brand-name { font-size: 2.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── NAVIGATION ── -->
+  <nav class="nav" id="main-nav">
+    <a href="index.html" class="nav-logo">AKOOSH</a>
+    <ul class="nav-links">
+      <li><a href="cafe.html">Cafe</a></li>
+      <li><a href="barbershop.html">Barbershop</a></li>
+      <li><a href="#location">Location</a></li>
+      <li><a href="#social">Connect</a></li>
+    </ul>
+    <div class="nav-right">
+      <div class="nav-social-icons">
+        <a href="#">TikTok</a>
+        <a href="#">Instagram</a>
+        <a href="#">WhatsApp</a>
+      </div>
+      <button class="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile nav -->
+  <div class="mobile-nav">
+    <button class="mobile-nav-close" style="position:absolute;top:24px;right:24px;background:none;border:none;color:var(--text);font-size:2rem;cursor:pointer;">✕</button>
+    <a href="cafe.html">Cafe</a>
+    <a href="barbershop.html">Barbershop</a>
+    <a href="#location">Location</a>
+    <a href="#social">Connect</a>
+  </div>
+
+  <!-- ── HERO SPLIT SCREEN ── -->
+  <section class="split-wrap">
+    <a href="cafe.html" class="split-side split-cafe">
+      <div class="split-bg"></div>
+      <div class="split-overlay"></div>
+      <div class="split-content">
+        <span class="split-badge">☕ Now Serving</span>
+        <span class="split-label">Cafe</span>
+        <p class="split-desc">Specialty brews · Games · Vibes</p>
+        <span class="split-cta">Enter Cafe →</span>
+      </div>
+    </a>
+
+    <div class="split-divider"></div>
+
+    <div class="center-logo">
+      <div class="brand-name">AKOOSH</div>
+      <div class="brand-tagline">Est. Your City · Your Culture</div>
+    </div>
+
+    <a href="barbershop.html" class="split-side split-barber">
+      <div class="split-bg"></div>
+      <div class="split-overlay"></div>
+      <div class="split-content">
+        <span class="split-badge">✂️ Walk-ins Welcome</span>
+        <span class="split-label">Barber</span>
+        <p class="split-desc">Precision cuts · Fades · Grooming</p>
+        <span class="split-cta">Enter Barbershop →</span>
+      </div>
+    </a>
+
+    <div class="scroll-hint">
+      <span>Scroll</span>
+      <span class="arrow">↓</span>
+    </div>
+  </section>
+
+  <!-- ── TICKER ── -->
+  <div class="about-strip">
+    <div class="ticker">
+      <!-- Duplicated for seamless loop -->
+      <span class="ticker-item">Akoosh Cafe <span class="ticker-dot"></span></span>
+      <span class="ticker-item">Specialty Coffee <span class="ticker-dot"></span></span>
+      <span class="ticker-item">Precision Cuts <span class="ticker-dot"></span></span>
+      <span class="ticker-item">Akoosh Barbershop <span class="ticker-dot"></span></span>
+      <span class="ticker-item">PlayStation · Xbox · PC <span class="ticker-dot"></span></span>
+      <span class="ticker-item">حلاقة راس · حلاقة لحية <span class="ticker-dot"></span></span>
+      <span class="ticker-item">Book Your Spot <span class="ticker-dot"></span></span>
+      <span class="ticker-item">Akoosh Cafe <span class="ticker-dot"></span></span>
+      <span class="ticker-item">Specialty Coffee <span class="ticker-dot"></span></span>
+      <span class="ticker-item">Precision Cuts <span class="ticker-dot"></span></span>
+      <span class="ticker-item">Akoosh Barbershop <span class="ticker-dot"></span></span>
+      <span class="ticker-item">PlayStation · Xbox · PC <span class="ticker-dot"></span></span>
+      <span class="ticker-item">حلاقة راس · حلاقة لحية <span class="ticker-dot"></span></span>
+      <span class="ticker-item">Book Your Spot <span class="ticker-dot"></span></span>
+    </div>
+  </div>
+
+  <!-- ── LOCATION SECTION ── -->
+  <section class="section location-section" id="location">
+    <div class="container">
+      <span class="section-label reveal">📍 Find Us</span>
+      <h2 class="section-title reveal rv-1">Come Find<br>Your Spot</h2>
+      <p class="section-subtitle reveal rv-2">We're right where you need us to be. Drop by anytime — no appointment needed for a coffee.</p>
+
+      <div class="location-grid" style="margin-top: 56px;">
+        <!-- Map -->
+        <div class="reveal rv-1">
+          <div class="map-placeholder">
+            <div class="map-grid-lines"></div>
+            <div class="map-pin"></div>
+            <div class="map-icon">🗺️</div>
+            <div class="map-text">Google Maps Embed</div>
+            <p style="font-size:0.72rem;color:var(--text-dim);margin-top:4px;">Replace with your iframe embed</p>
+          </div>
+          <a href="#" class="btn btn-outline" style="margin-top:16px;width:100%;justify-content:center;">
+            Get Directions →
+          </a>
+        </div>
+
+        <!-- Info cards -->
+        <div class="location-info reveal rv-2">
+          <div class="location-card lc-cafe glass">
+            <div class="location-card-header">
+              <div class="location-icon">☕</div>
+              <div>
+                <div class="location-card-title">Akoosh Cafe</div>
+                <span class="chip">Open Now</span>
+              </div>
+            </div>
+            <div class="address-line">
+              <span>📍</span>
+              <span>[Your Full Address, City, West Bank]</span>
+            </div>
+            <div class="hours-list">
+              <div class="hours-row"><span class="day">Mon – Thu</span><span>9:00 AM – 12:00 AM</span></div>
+              <div class="hours-row"><span class="day">Fri – Sat</span><span>9:00 AM – 2:00 AM</span></div>
+              <div class="hours-row"><span class="day">Sunday</span><span>10:00 AM – 11:00 PM</span></div>
+            </div>
+            <div class="divider"></div>
+            <a href="cafe.html" class="btn btn-cafe btn-sm" style="width:100%;justify-content:center;">View Cafe Menu</a>
+          </div>
+
+          <div class="location-card lc-barber glass">
+            <div class="location-card-header">
+              <div class="location-icon">✂️</div>
+              <div>
+                <div class="location-card-title">Akoosh Barbershop</div>
+                <span class="chip">By Appointment</span>
+              </div>
+            </div>
+            <div class="address-line">
+              <span>📍</span>
+              <span>[Your Full Address, City, West Bank]</span>
+            </div>
+            <div class="hours-list">
+              <div class="hours-row"><span class="day">Mon – Thu</span><span>10:00 AM – 9:00 PM</span></div>
+              <div class="hours-row"><span class="day">Fri – Sat</span><span>10:00 AM – 11:00 PM</span></div>
+              <div class="hours-row"><span class="day">Sunday</span><span>Closed</span></div>
+            </div>
+            <div class="divider"></div>
+            <a href="barbershop.html#book" class="btn btn-barber btn-sm" style="width:100%;justify-content:center;">Book Appointment</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SOCIAL HUB ── -->
+  <section class="section social-hub" id="social">
+    <div class="container">
+      <span class="section-label reveal">Follow the Vibe</span>
+      <h2 class="section-title reveal rv-1">@akoosh</h2>
+      <p class="section-subtitle reveal rv-2">Stay in the loop — new drops, booking opens, and daily energy.</p>
+
+      <div class="social-grid">
+        <a href="#" class="social-card sc-tiktok glass reveal rv-1">
+          <div class="social-card-icon">🎵</div>
+          <div class="social-card-name">TikTok</div>
+          <div class="social-card-handle">@akoosh</div>
+          <div class="social-card-arrow">↗</div>
+        </a>
+        <a href="#" class="social-card sc-instagram glass reveal rv-2">
+          <div class="social-card-icon">📸</div>
+          <div class="social-card-name">Instagram</div>
+          <div class="social-card-handle">@akoosh</div>
+          <div class="social-card-arrow">↗</div>
+        </a>
+        <a href="#" class="social-card sc-facebook glass reveal rv-3">
+          <div class="social-card-icon">👥</div>
+          <div class="social-card-name">Facebook</div>
+          <div class="social-card-handle">Akoosh Official</div>
+          <div class="social-card-arrow">↗</div>
+        </a>
+        <a href="#" class="social-card sc-snapchat glass reveal rv-1">
+          <div class="social-card-icon">👻</div>
+          <div class="social-card-name">Snapchat</div>
+          <div class="social-card-handle">@akoosh</div>
+          <div class="social-card-arrow">↗</div>
+        </a>
+        <a href="https://wa.me/970XXXXXXXXX" class="social-card sc-whatsapp glass reveal rv-2">
+          <div class="social-card-icon">💬</div>
+          <div class="social-card-name">WhatsApp</div>
+          <div class="social-card-handle">Message us directly</div>
+          <div class="social-card-arrow">↗</div>
+        </a>
+        <a href="tel:+970XXXXXXXXX" class="social-card sc-phone glass reveal rv-3">
+          <div class="social-card-icon">📞</div>
+          <div class="social-card-name">Call Us</div>
+          <div class="social-card-handle">+970 XXX XXX XXX</div>
+          <div class="social-card-arrow">↗</div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ── -->
+  <div id="footer-root"></div>
+
+  <script src="js/main.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      renderFooter('footer-root');
+    });
+  </script>
+</body>
+</html>

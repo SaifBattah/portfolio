@@ -1,0 +1,211 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Fraunces:wght@700;800;900&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg:      #10131a;
+  --bg2:     #151820;
+  --card:    #1a1f2e;
+  --border:  rgba(255,255,255,0.07);
+  --text:    #e8eaf0;
+  --muted:   #8892a4;
+  --accent:  #7dd3fc;
+  --accent2: #a78bfa;
+  --accent3: #fbbf24;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* ── NAV ─────────────────────────────────────────────────────── */
+.mod-nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(16,19,26,0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2.5rem;
+  height: 56px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.mod-back {
+  display: flex; align-items: center; gap: 8px;
+  color: var(--muted); text-decoration: none;
+  font-size: 0.85rem; font-family: 'JetBrains Mono', monospace;
+  transition: color 0.2s;
+}
+.mod-back:hover { color: var(--accent); }
+.mod-nav-title {
+  font-size: 0.78rem; color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ── HERO ─────────────────────────────────────────────────────── */
+.mod-hero {
+  padding: 4rem 2.5rem 2.5rem;
+  max-width: 900px; margin: 0 auto;
+  border-bottom: 1px solid var(--border);
+}
+.mod-type {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem; color: var(--accent);
+  text-transform: uppercase; letter-spacing: 0.1em;
+  margin-bottom: 0.75rem;
+}
+.mod-title {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  font-weight: 800; line-height: 1.1;
+  background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  margin-bottom: 1.25rem;
+}
+.mod-desc {
+  font-size: 1rem; color: var(--muted);
+  max-width: 680px; line-height: 1.8;
+}
+
+/* ── CONTENT ──────────────────────────────────────────────────── */
+.mod-content {
+  max-width: 900px; margin: 0 auto;
+  padding: 0 2.5rem 4rem;
+}
+
+.mod-section {
+  padding: 2.5rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.mod-section:last-child { border-bottom: none; }
+
+.mod-section-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem; color: var(--accent2);
+  text-transform: uppercase; letter-spacing: 0.1em;
+  margin-bottom: 1.5rem;
+}
+
+/* ── FEATURES ─────────────────────────────────────────────────── */
+.mod-features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+.mod-feature {
+  display: flex; gap: 1rem; align-items: flex-start;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.1rem 1.25rem;
+}
+.mod-feature-icon { font-size: 1.4rem; flex-shrink: 0; margin-top: 2px; }
+.mod-feature-title {
+  font-weight: 600; font-size: 0.9rem;
+  color: var(--text); margin-bottom: 0.3rem;
+}
+.mod-feature-text { font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
+
+/* ── TECH PILLS ───────────────────────────────────────────────── */
+.mod-pills { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.mod-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  padding: 5px 14px;
+  border-radius: 20px;
+  background: rgba(125,211,252,0.08);
+  border: 1px solid rgba(125,211,252,0.2);
+  color: var(--accent);
+}
+
+/* ── SCREENSHOTS ──────────────────────────────────────────────── */
+.mod-screenshots {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+.mod-screenshot-slot {
+  background: var(--card);
+  border: 2px dashed var(--border);
+  border-radius: 10px;
+  aspect-ratio: 16/10;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 0.5rem; color: var(--muted);
+  font-size: 0.8rem; font-family: 'JetBrains Mono', monospace;
+  overflow: hidden;
+}
+.mod-screenshot-slot img {
+  width: 100%; height: 100%; object-fit: cover; border-radius: 8px;
+}
+.mod-screenshot-slot .slot-label { font-size: 0.75rem; color: var(--muted); }
+.mod-screenshot-slot .slot-icon { font-size: 1.5rem; opacity: 0.3; }
+
+/* ── CODE BLOCKS ──────────────────────────────────────────────── */
+.mod-code-block {
+  background: #0d1017;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+.mod-code-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.7rem 1.1rem;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,0.02);
+}
+.mod-code-lang {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem; color: var(--accent);
+  text-transform: uppercase; letter-spacing: 0.08em;
+}
+.mod-code-desc { font-size: 0.78rem; color: var(--muted); }
+.mod-code-block pre {
+  padding: 1.25rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem; line-height: 1.75;
+  color: #e2e8f0; overflow-x: auto; margin: 0;
+}
+.mod-code-block pre .empty-note {
+  color: var(--muted); font-style: italic;
+}
+.code-kw { color: #7dd3fc; }
+.code-fn { color: #a78bfa; }
+.code-str { color: #86efac; }
+.code-num { color: #fbbf24; }
+.code-cm  { color: #4b5563; font-style: italic; }
+.code-sel { color: #f472b6; }
+.code-prop{ color: #7dd3fc; }
+.code-val { color: #86efac; }
+
+/* ── DEMO BUTTON ──────────────────────────────────────────────── */
+.mod-demo-btns { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 0.5rem; }
+.mod-demo-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 0.75rem 1.75rem;
+  border-radius: 10px;
+  font-weight: 700; font-size: 0.9rem;
+  text-decoration: none;
+  font-family: 'Outfit', sans-serif;
+  transition: opacity 0.2s, transform 0.2s;
+  cursor: pointer; border: none;
+}
+.mod-demo-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+.mod-demo-btn.primary {
+  background: linear-gradient(135deg, var(--accent), #60a5fa);
+  color: #0a0d14;
+}
+.mod-demo-btn.secondary {
+  background: rgba(125,211,252,0.08);
+  border: 1px solid rgba(125,211,252,0.25);
+  color: var(--accent);
+}
+
+/* ── RESPONSIVE ───────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .mod-nav, .mod-hero, .mod-content { padding-left: 1.25rem; padding-right: 1.25rem; }
+  .mod-hero { padding-top: 2.5rem; }
+}

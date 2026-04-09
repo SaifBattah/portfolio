@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real-Time Bed Dashboard — Saif Battah</title>
+  <link rel="stylesheet" href="module.css">
+  <style>
+    .demo-wrap {
+      background: #f0f0f5;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #ccc;
+      font-family: Arial, sans-serif;
+      position: relative;
+    }
+
+    .demo-topbar {
+      background: #2d3561;
+      color: #fff;
+      padding: 9px 16px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .demo-topbar-title {
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .demo-live {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      opacity: .8;
+    }
+
+    .demo-live-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 5px #22c55e;
+      animation: blink 1.8s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: .3
+      }
+    }
+
+    .demo-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 10px 16px;
+      background: #fff;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .demo-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      color: #444;
+    }
+
+    .demo-legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    .demo-body {
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 560px;
+      overflow-y: auto;
+    }
+
+    .demo-floor {
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .demo-floor-title {
+      background: #3d4f8c;
+      color: #fff;
+      padding: 7px 14px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .demo-floor-stats {
+      font-size: 10px;
+      font-weight: 400;
+      opacity: .8;
+    }
+
+    .demo-room-row {
+      padding: 10px 14px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .demo-room-row:last-child {
+      border-bottom: none;
+    }
+
+    .demo-room-label {
+      font-size: 10px;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 8px;
+    }
+
+    .demo-beds {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .demo-bed {
+      width: 80px;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 2px solid rgba(0, 0, 0, .15);
+      cursor: pointer;
+      transition: transform .15s, box-shadow .15s;
+      user-select: none;
+      position: relative;
+    }
+
+    .demo-bed:hover {
+      transform: scale(1.08);
+      box-shadow: 0 5px 16px rgba(0, 0, 0, .25);
+      z-index: 2;
+    }
+
+    .demo-bed-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px;
+      font-size: 13px;
+    }
+
+    .demo-bed-id {
+      font-size: 9px;
+      text-align: center;
+      padding: 2px 4px;
+      font-weight: 700;
+      background: rgba(0, 0, 0, .08);
+    }
+
+    .bed-svg {
+      width: 100%;
+      display: block;
+    }
+
+    .demo-tooltip {
+      position: fixed;
+      z-index: 9999;
+      background: #1a1e28;
+      border: 1px solid rgba(125, 211, 252, .35);
+      color: #e8eaf0;
+      font-size: 11px;
+      font-family: Arial, sans-serif;
+      padding: 9px 12px;
+      border-radius: 9px;
+      pointer-events: none;
+      display: none;
+      max-width: 210px;
+      line-height: 1.6;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, .55);
+    }
+
+    .tooltip-id {
+      font-weight: 700;
+      color: #7dd3fc;
+      margin-bottom: 3px;
+    }
+
+    .tooltip-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+      flex-shrink: 0;
+      display: inline-block;
+      margin-right: 5px;
+      vertical-align: middle;
+    }
+
+    .demo-menu {
+      position: fixed;
+      z-index: 9998;
+      background: #1a1e28;
+      border: 1px solid rgba(125, 211, 252, .2);
+      border-radius: 11px;
+      padding: 6px;
+      min-width: 172px;
+      box-shadow: 0 14px 36px rgba(0, 0, 0, .65);
+      display: none;
+    }
+
+    .demo-menu-header {
+      padding: 6px 10px 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, .07);
+      margin-bottom: 4px;
+    }
+
+    .demo-menu-bid {
+      font-size: 10px;
+      font-family: monospace;
+      color: #7dd3fc;
+    }
+
+    .demo-menu-patient {
+      font-size: 12px;
+      font-weight: 600;
+      color: #e8eaf0;
+      margin-top: 2px;
+    }
+
+    .demo-menu-lbl {
+      font-size: 10px;
+      color: rgba(255, 255, 255, .35);
+      padding: 4px 10px 2px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    .demo-menu-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 7px 10px;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: 12px;
+      color: #e8eaf0;
+      transition: background .12s;
+    }
+
+    .demo-menu-item:hover {
+      background: rgba(125, 211, 252, .1);
+    }
+
+    .demo-menu-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    .demo-menu-close {
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, .3);
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .demo-menu-close:hover {
+      color: #fff;
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav class="mod-nav">
+    <a class="mod-back" href="../index.html">← Back to Portfolio</a>
+    <div class="mod-nav-title">Saif Battah · HIS Module</div>
+  </nav>
+
+  <div class="mod-hero">
+    <div class="mod-type">HIS Module · Real-Time Bed Management</div>
+    <h1 class="mod-title">Real-Time Bed Dashboard</h1>
+    <p class="mod-desc">Interactive visual floor map representing each hospital department floor-by-floor, divided into
+      rooms with a physical representation of bed distribution. Designed to give hospital staff full real-time
+      visibility and control over every bed.</p>
+  </div>
+
+  <div class="mod-content">
+
+    <div class="mod-section">
+      <div class="mod-section-label">Key Features</div>
+      <div class="mod-features">
+        <div class="mod-feature">
+          <div class="mod-feature-icon">🗺️</div>
+          <div>
+            <div class="mod-feature-title">Floor-by-Floor Map</div>
+            <div class="mod-feature-text">Each department is rendered as a visual floor showing rooms and their exact
+              bed layout, mirroring the physical hospital structure.</div>
+          </div>
+        </div>
+        <div class="mod-feature">
+          <div class="mod-feature-icon">🎨</div>
+          <div>
+            <div class="mod-feature-title">Color-Coded Status</div>
+            <div class="mod-feature-text">Every bed is color-coded by status: occupied, clean, reserved, broken, or
+              booked — giving instant visual clarity at a glance.</div>
+          </div>
+        </div>
+        <div class="mod-feature">
+          <div class="mod-feature-icon">🖱️</div>
+          <div>
+            <div class="mod-feature-title">Click to Change Status</div>
+            <div class="mod-feature-text">Click any bed to open the status menu and update it instantly across the map.
+            </div>
+          </div>
+        </div>
+        <div class="mod-feature">
+          <div class="mod-feature-icon">👤</div>
+          <div>
+            <div class="mod-feature-title">Patient Info on Hover</div>
+            <div class="mod-feature-text">Hovering over any occupied bed shows the patient's name, admission reason, and
+              current status in a tooltip.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mod-section">
+      <div class="mod-section-label">Tech Stack</div>
+      <div class="mod-pills">
+        <span class="mod-pill">ASP.NET</span><span class="mod-pill">SVG</span><span class="mod-pill">Drag &amp;
+          Drop</span><span class="mod-pill">SQL Server</span><span class="mod-pill">C#</span>
+      </div>
+    </div>
+
+    <div class="mod-section">
+      <div class="mod-section-label">Screenshots</div>
+      <div class="mod-screenshots">
+        <div class="mod-screenshot-slot">
+          <div class="slot-icon">🖼️</div>
+          <div class="slot-label">Bed Dashboard — Full Floor View</div>
+        </div>
+        <div class="mod-screenshot-slot">
+          <div class="slot-icon">🖼️</div>
+          <div class="slot-label">Patient Info Panel</div>
+        </div>
+        <div class="mod-screenshot-slot">
+          <div class="slot-icon">🖼️</div>
+          <div class="slot-label">Status Change Menu</div>
+        </div>
+        <div class="mod-screenshot-slot">
+          <div class="slot-icon">🖼️</div>
+          <div class="slot-label">Floor Overview</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mod-section">
+      <div class="mod-section-label">Live Demo</div>
+      <p
+        style="font-size:.82rem;color:var(--muted);margin-bottom:1rem;font-family:'JetBrains Mono',monospace;padding:.75rem 1rem;background:rgba(125,211,252,.05);border:1px solid rgba(125,211,252,.1);border-radius:8px;">
+        🖱️ Hover any bed to see patient info &nbsp;·&nbsp; Click any bed to change its status
+      </p>
+      <div id="bedDemo"></div>
+    </div>
+
+    <!-- <div class="mod-section">
+      <div class="mod-section-label">Code Snippets</div>
+      <div class="mod-code-block">
+        <div class="mod-code-header"><span class="mod-code-lang">C#</span><span class="mod-code-desc">Real-time bed
+            status update via WebSocket</span></div>
+        <pre><span class="empty-note">// Code snippet coming soon...</span></pre>
+      </div>
+    </div> -->
+
+  </div>
+
+  <div class="demo-tooltip" id="bedTooltip"></div>
+  <div class="demo-menu" id="bedMenu">
+    <button class="demo-menu-close" id="menuClose">&#10005;</button>
+    <div class="demo-menu-header">
+      <div class="demo-menu-bid" id="menuBedId"></div>
+      <div class="demo-menu-patient" id="menuBedPatient"></div>
+    </div>
+    <div class="demo-menu-lbl">Change Status</div>
+    <div id="menuItems"></div>
+  </div>
+
+  <script>
+    (function () {
+      var statuses = {
+        occupied: { color: '#f97316', bg: '#fff3eb', icon: '🧑', label: 'Occupied' },
+        clean: { color: '#22c55e', bg: '#f0fdf4', icon: '🧹', label: 'Clean' },
+        reserved: { color: '#3b82f6', bg: '#eff6ff', icon: '📋', label: 'Reserved' },
+        broken: { color: '#ef4444', bg: '#fef2f2', icon: '🔧', label: 'Broken' },
+        booked: { color: '#a855f7', bg: '#faf5ff', icon: '✅', label: 'Booked' },
+        empty: { color: '#94a3b8', bg: '#f8fafc', icon: '🛏️', label: 'Empty' }
+      };
+
+      var floors = [
+        {
+          name: 'ICU — Floor 1', rooms: [
+            {
+              label: 'Room 101–104', beds: [
+                { id: 'B101', status: 'occupied', patient: 'Ahmad Karimi', reason: 'Post-Op Recovery' },
+                { id: 'B102', status: 'occupied', patient: 'Sara Hasan', reason: 'Cardiac Monitoring' },
+                { id: 'B103', status: 'clean', patient: null, reason: null },
+                { id: 'B104', status: 'booked', patient: 'Pending Admission', reason: 'Surgery Prep' }
+              ]
+            },
+            {
+              label: 'Room 105–109', beds: [
+                { id: 'B105', status: 'occupied', patient: 'Omar Nasser', reason: 'ICU Monitoring' },
+                { id: 'B106', status: 'reserved', patient: 'OR Transfer', reason: 'Pre-Op Hold' },
+                { id: 'B107', status: 'broken', patient: null, reason: null },
+                { id: 'B108', status: 'occupied', patient: 'Fatima Ali', reason: 'Post-Op Recovery' },
+                { id: 'B109', status: 'empty', patient: null, reason: null }
+              ]
+            }
+          ]
+        },
+        {
+          name: 'Radiology — Floor 2', rooms: [
+            {
+              label: 'Room 201–204', beds: [
+                { id: 'B201', status: 'empty', patient: null, reason: null },
+                { id: 'B202', status: 'occupied', patient: 'Layla Issa', reason: 'MRI Prep' },
+                { id: 'B203', status: 'clean', patient: null, reason: null },
+                { id: 'B204', status: 'booked', patient: 'Scheduled 14:00', reason: 'CT Scan' }
+              ]
+            },
+            {
+              label: 'Room 205–208', beds: [
+                { id: 'B205', status: 'occupied', patient: 'Nour Saleh', reason: 'X-Ray Monitoring' },
+                { id: 'B206', status: 'occupied', patient: 'Rami Khalil', reason: 'Ultrasound Prep' },
+                { id: 'B207', status: 'reserved', patient: 'Post-Op Hold', reason: 'Recovery' },
+                { id: 'B208', status: 'broken', patient: null, reason: null }
+              ]
+            }
+          ]
+        }
+      ];
+
+      var activeBed = null;
+
+      function bedSVG(status) {
+        var s = statuses[status];
+        var hp = ['occupied', 'booked', 'reserved'].indexOf(status) > -1;
+        return '<svg class="bed-svg" viewBox="0 0 80 56" xmlns="http://www.w3.org/2000/svg" style="background:' + s.bg + '">'
+          + '<rect x="4" y="30" width="72" height="20" rx="3" fill="#ddd"/>'
+          + '<rect x="4" y="22" width="72" height="10" rx="2" fill="#e8e8e8"/>'
+          + '<rect x="4" y="10" width="20" height="24" rx="3" fill="#ccc"/>'
+          + (hp ? '<ellipse cx="40" cy="16" rx="7" ry="8" fill="' + s.color + '" opacity=".85"/>'
+            + '<rect x="25" y="22" width="30" height="15" rx="3" fill="' + s.color + '" opacity=".65"/>' : '')
+          + (status === 'clean' ? '<text x="40" y="34" text-anchor="middle" font-size="16">🧹</text>' : '')
+          + (status === 'broken' ? '<text x="40" y="34" text-anchor="middle" font-size="16">🔧</text>' : '')
+          + '</svg>';
+      }
+
+      function calcStats(floor) {
+        var all = [];
+        floor.rooms.forEach(function (r) { r.beds.forEach(function (b) { all.push(b); }); });
+        var occ = all.filter(function (b) { return b.status === 'occupied'; }).length;
+        var free = all.filter(function (b) { return b.status === 'empty' || b.status === 'clean'; }).length;
+        return all.length + ' beds · ' + occ + ' occupied · ' + free + ' available';
+      }
+
+      function findBed(id) {
+        for (var fi = 0; fi < floors.length; fi++)
+          for (var ri = 0; ri < floors[fi].rooms.length; ri++)
+            for (var bi = 0; bi < floors[fi].rooms[ri].beds.length; bi++)
+              if (floors[fi].rooms[ri].beds[bi].id === id) return floors[fi].rooms[ri].beds[bi];
+        return null;
+      }
+
+      function render() {
+        var legend = Object.keys(statuses).map(function (k) {
+          return '<div class="demo-legend-item"><div class="demo-legend-dot" style="background:' + statuses[k].color + '"></div>' + statuses[k].icon + ' ' + statuses[k].label + '</div>';
+        }).join('');
+
+        var floorsHTML = floors.map(function (floor) {
+          var rooms = floor.rooms.map(function (room) {
+            var beds = room.beds.map(function (bed) {
+              var s = statuses[bed.status];
+              return '<div class="demo-bed" data-bid="' + bed.id + '" style="border-color:' + s.color + '">'
+                + '<div class="demo-bed-header" style="background:' + s.color + ';color:#fff">' + s.icon + '</div>'
+                + bedSVG(bed.status)
+                + '<div class="demo-bed-id" style="color:' + s.color + '">' + bed.id + '</div>'
+                + '</div>';
+            }).join('');
+            return '<div class="demo-room-row"><div class="demo-room-label">' + room.label + '</div><div class="demo-beds">' + beds + '</div></div>';
+          }).join('');
+          return '<div class="demo-floor"><div class="demo-floor-title"><span>' + floor.name + '</span><span class="demo-floor-stats">' + calcStats(floor) + '</span></div>' + rooms + '</div>';
+        }).join('');
+
+        document.getElementById('bedDemo').innerHTML =
+          '<div class="demo-wrap">'
+          + '<div class="demo-topbar"><span class="demo-topbar-title">🏥 Hospital Information System — Bed Management</span><span class="demo-live"><div class="demo-live-dot"></div> Live</span></div>'
+          + '<div class="demo-legend">' + legend + '</div>'
+          + '<div class="demo-body" id="bedBody">' + floorsHTML + '</div>'
+          + '</div>';
+
+        var body = document.getElementById('bedBody');
+        var tooltip = document.getElementById('bedTooltip');
+        var menu = document.getElementById('bedMenu');
+
+        body.addEventListener('mouseover', function (e) {
+          var el = e.target.closest('.demo-bed'); if (!el) { tooltip.style.display = 'none'; return; }
+          var bed = findBed(el.getAttribute('data-bid')); if (!bed) return;
+          var s = statuses[bed.status];
+          tooltip.innerHTML = '<div class="tooltip-id">' + bed.id + '</div>'
+            + '<div><span class="tooltip-dot" style="background:' + s.color + '"></span>' + s.label + '</div>'
+            + (bed.patient ? '<div style="margin-top:4px;color:#c4cad6">👤 ' + bed.patient + '</div>' : '')
+            + (bed.reason ? '<div style="color:#8892a4;font-size:10px">' + bed.reason + '</div>' : '');
+          tooltip.style.display = 'block';
+        });
+        body.addEventListener('mousemove', function (e) { tooltip.style.left = (e.clientX + 16) + 'px'; tooltip.style.top = (e.clientY - 10) + 'px'; });
+        body.addEventListener('mouseleave', function () { tooltip.style.display = 'none'; });
+
+        body.addEventListener('click', function (e) {
+          var el = e.target.closest('.demo-bed'); if (!el) return;
+          var bed = findBed(el.getAttribute('data-bid')); if (!bed) return;
+          activeBed = bed;
+          tooltip.style.display = 'none';
+          document.getElementById('menuBedId').textContent = bed.id;
+          document.getElementById('menuBedPatient').textContent = bed.patient || statuses[bed.status].label;
+          document.getElementById('menuItems').innerHTML = Object.keys(statuses).map(function (k) {
+            var cur = k === bed.status;
+            return '<div class="demo-menu-item" data-status="' + k + '" style="' + (cur ? 'background:rgba(125,211,252,.08)' : '') + '">'
+              + '<div class="demo-menu-dot" style="background:' + statuses[k].color + '"></div>'
+              + statuses[k].icon + ' ' + statuses[k].label
+              + (cur ? '<span style="margin-left:auto;font-size:10px;color:#7dd3fc">✓</span>' : '')
+              + '</div>';
+          }).join('');
+          var r = el.getBoundingClientRect(), mh = 280;
+          var top = r.bottom + 6; if (top + mh > window.innerHeight) top = r.top - mh - 6;
+          menu.style.left = Math.min(r.left, window.innerWidth - 190) + 'px';
+          menu.style.top = top + 'px';
+          menu.style.display = 'block';
+          e.stopPropagation();
+        });
+      }
+
+      document.getElementById('bedMenu').addEventListener('click', function (e) {
+        var item = e.target.closest('[data-status]'); if (!item || !activeBed) return;
+        activeBed.status = item.getAttribute('data-status');
+        if (['empty', 'clean', 'broken'].indexOf(activeBed.status) > -1) { activeBed.patient = null; activeBed.reason = null; }
+        document.getElementById('bedMenu').style.display = 'none';
+        activeBed = null;
+        render();
+      });
+      document.getElementById('menuClose').addEventListener('click', function () { document.getElementById('bedMenu').style.display = 'none'; activeBed = null; });
+      document.addEventListener('click', function (e) { if (!document.getElementById('bedMenu').contains(e.target)) { document.getElementById('bedMenu').style.display = 'none'; activeBed = null; } });
+
+      render();
+    })();
+  </script>
+
+</body>
+
+</html>

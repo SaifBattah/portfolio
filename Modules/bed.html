@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Hospital Bed Dashboard</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:      #f3f4f6;
+    --surface: #ffffff;
+    --text:    #111827;
+    --muted:   #6b7280;
+    --border:  #e5e7eb;
+    --row-bg:  #f9fafb;
+    --sb-bg:   #1e2535;
+    --sb-border: rgba(255,255,255,0.07);
+
+    --s-booked:   #dc2626;
+    --s-reserved: #2563eb;
+    --s-inclean:  #d97706;
+    --s-empty:    #9ca3af;
+  }
+
+  body.dark {
+    --bg:      #0f1117;
+    --surface: #111827;
+    --text:    #e5e7eb;
+    --muted:   #6b7280;
+    --border:  rgba(255,255,255,0.09);
+    --row-bg:  rgba(255,255,255,0.02);
+    --sb-bg:   #0c1018;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+    font-size: 13px;
+  }
+
+  /* ── SIDEBAR ── */
+  #sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    background: var(--sb-bg);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    border-right: 1px solid var(--sb-border);
+  }
+
+  .sb-brand {
+    padding: 16px;
+    border-bottom: 1px solid var(--sb-border);
+  }
+
+  .sb-brand-row {
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  .sb-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.1);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+
+  .sb-name  { color: #fff; font-weight: 700; font-size: 12px; }
+  .sb-sub   { color: rgba(255,255,255,0.3); font-size: 10px; margin-top: 2px; }
+
+  .live-pill {
+    margin-top: 10px;
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(34,197,94,0.1);
+    border-radius: 5px;
+    padding: 4px 8px;
+  }
+
+  .live-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #22c55e;
+    animation: blink 1.8s ease-in-out infinite;
+  }
+
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.25} }
+
+  .live-label { color: #4ade80; font-size: 10px; font-weight: 600; }
+
+  .sb-section { color: rgba(255,255,255,0.25); font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 12px 16px 6px; }
+
+  .sb-list { flex: 1; overflow-y: auto; padding: 0 8px; }
+
+  .sb-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-bottom: 1px;
+    border-left: 2px solid transparent;
+    transition: background 0.12s;
+  }
+
+  .sb-item:hover  { background: rgba(255,255,255,0.05); }
+  .sb-item.active { background: rgba(255,255,255,0.09); }
+
+  .sb-item-icon  { font-size: 14px; flex-shrink: 0; }
+  .sb-item-name  { flex: 1; font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.6); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sb-item.active .sb-item-name { color: #fff; }
+  .sb-item-occ   { font-size: 10px; color: rgba(255,255,255,0.3); }
+
+  .sb-legend { padding: 10px 14px; border-top: 1px solid var(--sb-border); }
+  .sb-legend-row { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+  .sb-legend-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+  .sb-legend-lbl { font-size: 10px; color: rgba(255,255,255,0.4); }
+
+  .sb-footer { padding: 10px 12px; border-top: 1px solid var(--sb-border); }
+  .sb-dark-btn {
+    width: 100%;
+    display: flex; align-items: center; gap: 7px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.04);
+    border: none; cursor: pointer;
+    color: rgba(255,255,255,0.4);
+    font-size: 11px; font-family: inherit;
+    transition: color 0.12s;
+  }
+
+  .sb-dark-btn:hover { color: rgba(255,255,255,0.7); }
+
+  /* ── MAIN ── */
+  #main { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+
+  /* ── PAGE HEADER ── */
+  .page-hdr { display: flex; align-items: center; justify-content: space-between; }
+  .page-title { font-size: 17px; font-weight: 700; }
+  .page-sub   { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .drag-tip   { font-size: 11px; color: var(--muted); padding: 5px 10px; border-radius: 5px; border: 1px solid var(--border); }
+
+  /* ── STATS BAR ── */
+  .stats-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .stats-row {
+    display: flex; align-items: center; gap: 20px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .stat-total { }
+  .stat-total-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .stat-total-val { font-size: 20px; font-weight: 700; line-height: 1.1; }
+
+  .stat-divider { width: 1px; height: 28px; background: var(--border); }
+
+  .stat-items { display: flex; align-items: center; gap: 16px; flex: 1; }
+  .stat-item  { display: flex; align-items: center; gap: 6px; }
+  .stat-dot   { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .stat-lbl   { font-size: 11px; color: var(--muted); }
+  .stat-val   { font-size: 13px; font-weight: 600; }
+
+  .occ-wrap   { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+  .occ-lbl    { font-size: 11px; color: var(--muted); white-space: nowrap; }
+  .occ-bar-bg { width: 120px; height: 6px; border-radius: 3px; background: var(--border); overflow: hidden; }
+  .occ-bar-fill { height: 100%; border-radius: 3px; transition: width 0.8s ease; }
+  .occ-pct    { font-size: 12px; font-weight: 700; min-width: 30px; text-align: right; }
+
+  .dist-bar { display: flex; height: 4px; gap: 1px; padding: 0 2px 2px; }
+  .dist-seg { border-radius: 2px; }
+
+  /* ── DEPARTMENTS ── */
+  .dept-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .dept-hdr {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 16px;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 1px solid var(--border);
+    background: var(--row-bg);
+  }
+
+  .dept-hdr-left  { display: flex; align-items: center; gap: 10px; }
+  .dept-icon      { font-size: 16px; }
+  .dept-title     { font-size: 13px; font-weight: 600; }
+  .dept-badge     { font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 4px; background: var(--border); color: var(--muted); letter-spacing: 0.05em; }
+  .dept-meta      { font-size: 10px; color: var(--muted); margin-top: 1px; }
+
+  .dept-hdr-right { display: flex; align-items: center; gap: 12px; }
+
+  .dept-stats { display: flex; align-items: center; gap: 10px; }
+  .dept-stat  { display: flex; align-items: center; gap: 4px; font-size: 11px; }
+  .dept-stat-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+  .dept-occ { display: flex; align-items: center; gap: 6px; }
+  .dept-occ-bg { width: 70px; height: 5px; border-radius: 3px; background: var(--border); overflow: hidden; }
+  .dept-occ-fill { height: 100%; border-radius: 3px; }
+  .dept-occ-pct { font-size: 11px; font-weight: 600; color: var(--muted); min-width: 26px; }
+
+  .dept-live { display: flex; align-items: center; gap: 4px; font-size: 10px; color: var(--muted); }
+
+  .dept-body { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 14px; }
+  .dept-body.collapsed { display: none; }
+
+  .chevron { font-size: 11px; color: var(--muted); transition: transform 0.2s; }
+  .chevron.open { transform: rotate(180deg); }
+
+  /* ── ROOMS ── */
+  .room-card {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+
+  .room-card.dragover {
+    border-color: #6b7280 !important;
+    box-shadow: 0 0 0 2px rgba(107,114,128,0.2);
+  }
+
+  .room-hdr {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--border);
+    background: var(--row-bg);
+  }
+
+  .room-hdr-left  { display: flex; align-items: center; gap: 6px; }
+  .room-name      { font-size: 11px; font-weight: 600; }
+  .room-count     { font-size: 10px; color: var(--muted); }
+  .room-stats     { display: flex; align-items: center; gap: 6px; }
+  .room-stat      { display: flex; align-items: center; gap: 3px; font-size: 10px; }
+  .room-stat-dot  { width: 5px; height: 5px; border-radius: 50%; }
+
+  .room-body      { padding: 10px; }
+
+  .nurses-station {
+    text-align: center;
+    font-size: 9px;
+    color: var(--muted);
+    padding: 3px;
+    border: 1px dashed var(--border);
+    border-radius: 4px;
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+  }
+
+  .beds-grid { display: grid; gap: 6px; }
+
+  .entrance {
+    text-align: center; font-size: 9px; letter-spacing: 0.08em;
+    color: var(--border);
+    border-top: 1px solid var(--border);
+    margin-top: 8px;
+    padding-top: 5px;
+  }
+
+  /* ── BED CARD ── */
+  .bed-card {
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    border-left: 3px solid transparent;
+    background: var(--surface);
+    cursor: grab;
+    transition: box-shadow 0.12s, transform 0.12s;
+    user-select: none;
+    overflow: hidden;
+  }
+
+  .bed-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); transform: translateY(-1px); }
+  .bed-card.dragging { opacity: 0.35; }
+
+  .bed-top { display: flex; align-items: center; gap: 6px; padding: 6px 7px 4px; }
+
+  .bed-icon-svg { flex-shrink: 0; }
+
+  .bed-id  { font-size: 9px; font-weight: 700; font-family: 'Courier New', monospace; color: var(--text); line-height: 1.2; }
+  .bed-status-lbl { font-size: 8px; font-weight: 600; }
+
+  .bed-actions {
+    display: flex;
+    border-top: 1px solid var(--border);
+  }
+
+  .bed-btn {
+    flex: 1;
+    font-size: 8px;
+    font-weight: 600;
+    padding: 3px 2px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-family: inherit;
+    color: var(--muted);
+    border-right: 1px solid var(--border);
+    transition: background 0.1s;
+  }
+
+  .bed-btn:last-child { border-right: none; }
+  .bed-btn:hover { background: rgba(0,0,0,0.04); }
+
+  /* ── MODAL ── */
+  .overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.45);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9999;
+    padding: 20px;
+  }
+
+  .overlay.hidden { display: none; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    max-width: 360px;
+    width: 100%;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    position: relative;
+  }
+
+  .modal-close {
+    position: absolute; top: 12px; right: 12px;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    border: none; cursor: pointer;
+    background: var(--border);
+    color: var(--muted);
+    font-size: 12px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .modal-title { font-size: 13px; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 7px; }
+  .modal-title-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  .modal-avatar {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px;
+    border-radius: 7px;
+    border: 1px solid var(--border);
+    background: var(--row-bg);
+    margin-bottom: 12px;
+  }
+
+  .modal-initials {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 13px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .modal-avatar-name { font-size: 13px; font-weight: 600; }
+  .modal-avatar-sub  { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+  .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .modal-field-lbl { font-size: 9px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); margin-bottom: 2px; }
+  .modal-field-val { font-size: 12px; font-weight: 500; }
+
+  .modal-note { font-size: 11px; color: var(--muted); padding: 8px 10px; border: 1px solid var(--border); border-radius: 5px; }
+  .modal-note strong { color: var(--text); }
+
+  .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+  .status-opt {
+    display: flex; align-items: center; gap: 7px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    font-size: 12px; font-weight: 500;
+    background: none; font-family: inherit;
+    transition: border-color 0.12s;
+  }
+
+  .status-opt:hover { border-color: #9ca3af; }
+  .status-opt.active { font-weight: 700; }
+  .status-opt-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+
+  /* ── SHOW ALL ── */
+  #show-all { text-align: center; padding: 8px; display: none; }
+  #show-all button {
+    background: none; border: none; cursor: pointer;
+    font-size: 11px; color: var(--muted); text-decoration: underline;
+    font-family: inherit;
+  }
+
+  /* ── DRAG GHOST ── */
+  #ghost { position: fixed; pointer-events: none; z-index: 99999; width: 90px; display: none; transform: rotate(3deg) scale(1.05); }
+</style>
+</head>
+<body>
+
+<div id="sidebar">
+  <div class="sb-brand">
+    <div class="sb-brand-row">
+      <div class="sb-icon">🏥</div>
+      <div>
+        <div class="sb-name">Al-Shifa Hospital</div>
+        <div class="sb-sub">Bed Management System</div>
+      </div>
+    </div>
+    <div class="live-pill">
+      <div class="live-dot"></div>
+      <span class="live-label">Live Dashboard</span>
+    </div>
+  </div>
+
+  <div class="sb-section">Departments</div>
+  <div class="sb-list" id="sb-list"></div>
+
+  <div class="sb-legend">
+    <div class="sb-section" style="padding:0 0 7px">Status</div>
+    <div class="sb-legend-row"><div class="sb-legend-dot" style="background:var(--s-booked)"></div><span class="sb-legend-lbl">Booked</span></div>
+    <div class="sb-legend-row"><div class="sb-legend-dot" style="background:var(--s-reserved)"></div><span class="sb-legend-lbl">Reserved</span></div>
+    <div class="sb-legend-row"><div class="sb-legend-dot" style="background:var(--s-inclean)"></div><span class="sb-legend-lbl">In-Clean</span></div>
+    <div class="sb-legend-row"><div class="sb-legend-dot" style="background:var(--s-empty)"></div><span class="sb-legend-lbl">Empty</span></div>
+  </div>
+
+  <div class="sb-footer">
+    <button class="sb-dark-btn" id="dark-btn">🌙 Dark Mode</button>
+  </div>
+</div>
+
+<div id="main">
+  <div class="page-hdr">
+    <div>
+      <div class="page-title">Bed Management Dashboard</div>
+      <div class="page-sub" id="page-date"></div>
+    </div>
+    <div class="drag-tip">Drag beds between rooms to relocate</div>
+  </div>
+
+  <div class="stats-bar" id="stats-bar"></div>
+
+  <div id="depts"></div>
+  <div id="show-all"><button onclick="showAll()">Show all departments</button></div>
+</div>
+
+<div class="overlay hidden" id="overlay" onclick="maybeClose(event)">
+  <div class="modal" id="modal"></div>
+</div>
+
+<div id="ghost"></div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const S = {
+  booked:   { label:'Booked',   color:'#dc2626', css:'var(--s-booked)'   },
+  reserved: { label:'Reserved', color:'#2563eb', css:'var(--s-reserved)' },
+  inclean:  { label:'In-Clean', color:'#d97706', css:'var(--s-inclean)'  },
+  empty:    { label:'Empty',    color:'#9ca3af', css:'var(--s-empty)'    },
+};
+
+const PATIENTS = {
+  p1:  { name:'Ahmad Al-Karimi',  age:52, gender:'M', admitted:'2026-04-05', diagnosis:'Post-Op Recovery',         doctor:'Dr. Nour Sawalha',  ward:'ICU',         notes:'BP monitoring every 2hrs' },
+  p2:  { name:'Sara Al-Hassan',   age:34, gender:'F', admitted:'2026-04-07', diagnosis:'Cardiac Arrhythmia',       doctor:'Dr. Karim Issa',    ward:'Cardiology',  notes:'Holter monitor attached' },
+  p3:  { name:'Omar Nasser',      age:61, gender:'M', admitted:'2026-04-03', diagnosis:'Acute Respiratory Failure', doctor:'Dr. Lina Hamdan',   ward:'ICU' },
+  p4:  { name:'Fatima Al-Ali',    age:45, gender:'F', admitted:'2026-04-08', diagnosis:'Post-Surgical Monitoring',  doctor:'Dr. Nour Sawalha',  ward:'ICU' },
+  p5:  { name:'Layla Issa',       age:29, gender:'F', admitted:'2026-04-06', diagnosis:'MRI Pre-Procedure',        doctor:'Dr. Rami Khalil',   ward:'Radiology' },
+  p6:  { name:'Yousef Mansour',   age:73, gender:'M', admitted:'2026-04-04', diagnosis:'Coronary Artery Disease',  doctor:'Dr. Karim Issa',    ward:'Cardiology',  notes:'Awaiting cath lab' },
+  p7:  { name:'Nadia Qasim',      age:38, gender:'F', admitted:'2026-04-09', diagnosis:'Appendicitis',             doctor:'Dr. Bassam Houri',  ward:'Surgery' },
+  p10: { name:'Tariq Habib',      age:8,  gender:'M', admitted:'2026-04-08', diagnosis:'Pneumonia',                doctor:'Dr. Mona Salim',    ward:'Pediatrics' },
+  p11: { name:'Hana Zouabi',      age:41, gender:'F', admitted:'2026-04-07', diagnosis:'Breast Cancer Follow-up',  doctor:'Dr. Rami Khalil',   ward:'Oncology' },
+  p12: { name:'Sami Bitar',       age:67, gender:'M', admitted:'2026-04-06', diagnosis:'Chemotherapy Cycle',       doctor:'Dr. Rami Khalil',   ward:'Oncology',    notes:'Anti-emetics prescribed' },
+};
+
+const RESERVATIONS = {
+  r1: { for:'Pending Admission',  by:'Dr. Nour Sawalha',  reason:'Post-Op Recovery',          date:'2026-04-09', time:'14:00', phone:'+962-79-123-4567' },
+  r2: { for:'OR Transfer',        by:'Dr. Bassam Houri',  reason:'Cholecystectomy Surgery',    date:'2026-04-09', time:'10:30', phone:'+962-77-987-6543' },
+  r3: { for:'Scheduled CT Scan',  by:'Dr. Rami Khalil',   reason:'Chest CT with contrast',     date:'2026-04-09', time:'15:00', phone:'+962-79-555-5555' },
+  r4: { for:'Transfer from NICU', by:'Dr. Mona Salim',    reason:'Step-down care',             date:'2026-04-10', time:'09:00', phone:'+962-78-333-3333' },
+  r5: { for:'Pre-Admission Hold', by:'Admissions Office', reason:'Elective cardiac procedure', date:'2026-04-10', time:'08:00', phone:'+962-79-444-4444' },
+  r6: { for:'Emergency Transfer', by:'Dr. Lina Hamdan',   reason:'Sepsis protocol',            date:'2026-04-09', time:'16:00', phone:'+962-77-222-2222' },
+};
+
+let depts = [
+  { id:'icu',        name:'Intensive Care Unit',   short:'ICU',      icon:'🏥', color:'#ef4444', rooms:[
+    { id:'icu-101', name:'Room 101', layout:'icu', beds:[ { id:'ICU-101A', status:'booked', patient:PATIENTS.p1 }, { id:'ICU-101B', status:'booked', patient:PATIENTS.p3 }, { id:'ICU-101C', status:'reserved', reservation:RESERVATIONS.r1 }, { id:'ICU-101D', status:'inclean' } ] },
+    { id:'icu-102', name:'Room 102', layout:'icu', beds:[ { id:'ICU-102A', status:'booked', patient:PATIENTS.p4 }, { id:'ICU-102B', status:'empty' }, { id:'ICU-102C', status:'reserved', reservation:RESERVATIONS.r6 }, { id:'ICU-102D', status:'inclean' } ] },
+  ]},
+  { id:'cardiology', name:'Cardiology Department', short:'CARDIO',   icon:'❤️', color:'#f97316', rooms:[
+    { id:'cardio-201', name:'Room 201', layout:'ward', beds:[ { id:'C-201A', status:'booked', patient:PATIENTS.p2 }, { id:'C-201B', status:'booked', patient:PATIENTS.p6 }, { id:'C-201C', status:'empty' }, { id:'C-201D', status:'reserved', reservation:RESERVATIONS.r5 }, { id:'C-201E', status:'empty' }, { id:'C-201F', status:'inclean' } ] },
+    { id:'cardio-202', name:'Room 202', layout:'ward', beds:[ { id:'C-202A', status:'empty' }, { id:'C-202B', status:'inclean' }, { id:'C-202C', status:'empty' }, { id:'C-202D', status:'empty' } ] },
+  ]},
+  { id:'surgery',    name:'General Surgery',       short:'SURGERY',  icon:'🩺', color:'#8b5cf6', rooms:[
+    { id:'surg-301', name:'Room 301', layout:'ward', beds:[ { id:'S-301A', status:'booked', patient:PATIENTS.p7 }, { id:'S-301B', status:'reserved', reservation:RESERVATIONS.r2 }, { id:'S-301C', status:'empty' }, { id:'S-301D', status:'inclean' }, { id:'S-301E', status:'empty' }, { id:'S-301F', status:'empty' } ] },
+    { id:'surg-302', name:'Room 302', layout:'ward', beds:[ { id:'S-302A', status:'empty' }, { id:'S-302B', status:'empty' }, { id:'S-302C', status:'inclean' }, { id:'S-302D', status:'empty' } ] },
+  ]},
+  { id:'radiology',  name:'Radiology',             short:'RADIOLOGY',icon:'🔬', color:'#06b6d4', rooms:[
+    { id:'radio-401', name:'Room 401', layout:'standard', beds:[ { id:'R-401A', status:'empty' }, { id:'R-401B', status:'booked', patient:PATIENTS.p5 }, { id:'R-401C', status:'inclean' }, { id:'R-401D', status:'reserved', reservation:RESERVATIONS.r3 } ] },
+  ]},
+  { id:'pediatrics', name:'Pediatrics',            short:'PEDS',     icon:'🧸', color:'#10b981', rooms:[
+    { id:'peds-501', name:'Room 501', layout:'ward', beds:[ { id:'P-501A', status:'booked', patient:PATIENTS.p10 }, { id:'P-501B', status:'reserved', reservation:RESERVATIONS.r4 }, { id:'P-501C', status:'empty' }, { id:'P-501D', status:'empty' }, { id:'P-501E', status:'inclean' }, { id:'P-501F', status:'empty' } ] },
+  ]},
+  { id:'oncology',   name:'Oncology',              short:'ONCO',     icon:'🎗️', color:'#ec4899', rooms:[
+    { id:'onco-601', name:'Room 601', layout:'ward', beds:[ { id:'O-601A', status:'booked', patient:PATIENTS.p11 }, { id:'O-601B', status:'booked', patient:PATIENTS.p12 }, { id:'O-601C', status:'empty' }, { id:'O-601D', status:'empty' } ] },
+  ]},
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let selectedDept = null, isDark = false;
+let expanded = new Set(depts.map(d => d.id));
+let dragBedId = null;
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+const allBeds = d => d.rooms.flatMap(r => r.beds);
+const cnt = (beds, s) => beds.filter(b => b.status === s).length;
+
+function bedSVG(color) {
+  return `<svg width="32" height="20" viewBox="0 0 36 22" xmlns="http://www.w3.org/2000/svg">
+    <rect x="1" y="10" width="34" height="10" rx="2" fill="currentColor" opacity="0.06" stroke="currentColor" stroke-width="1" stroke-opacity="0.18"/>
+    <rect x="1" y="5" width="8" height="15" rx="1.5" fill="${color}" opacity="0.65"/>
+    <rect x="3.5" y="7" width="4" height="4" rx="1" fill="white" opacity="0.5"/>
+    <rect x="28" y="9" width="7" height="11" rx="1" fill="currentColor" opacity="0.1"/>
+    <rect x="2"  y="19" width="3" height="2" rx="0.5" fill="currentColor" opacity="0.15"/>
+    <rect x="14" y="19" width="3" height="2" rx="0.5" fill="currentColor" opacity="0.15"/>
+    <rect x="26" y="19" width="3" height="2" rx="0.5" fill="currentColor" opacity="0.15"/>
+  </svg>`;
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function render() {
+  renderStats();
+  renderSidebar();
+  renderDepts();
+}
+
+function renderStats() {
+  const ab = depts.flatMap(d => allBeds(d));
+  const total = ab.length, bk = cnt(ab,'booked'), rs = cnt(ab,'reserved'), cl = cnt(ab,'inclean'), em = cnt(ab,'empty');
+  const occ = total > 0 ? Math.round(((bk+rs)/total)*100) : 0;
+  const occColor = occ>80?'#dc2626':occ>60?'#d97706':'#16a34a';
+
+  document.getElementById('page-date').textContent =
+    new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+  document.getElementById('stats-bar').innerHTML = `
+    <div class="stats-row">
+      <div class="stat-total">
+        <div class="stat-total-lbl">Total Beds</div>
+        <div class="stat-total-val">${total}</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-items">
+        <div class="stat-item"><span class="stat-dot" style="background:#dc2626"></span><span class="stat-lbl">Booked</span><span class="stat-val" style="color:#dc2626">${bk}</span></div>
+        <div class="stat-item"><span class="stat-dot" style="background:#2563eb"></span><span class="stat-lbl">Reserved</span><span class="stat-val" style="color:#2563eb">${rs}</span></div>
+        <div class="stat-item"><span class="stat-dot" style="background:#d97706"></span><span class="stat-lbl">In-Clean</span><span class="stat-val" style="color:#d97706">${cl}</span></div>
+        <div class="stat-item"><span class="stat-dot" style="background:#9ca3af"></span><span class="stat-lbl">Empty</span><span class="stat-val" style="color:#9ca3af">${em}</span></div>
+      </div>
+      <div class="occ-wrap">
+        <span class="occ-lbl">Occupancy</span>
+        <div class="occ-bar-bg"><div class="occ-bar-fill" style="width:${occ}%;background:${occColor}"></div></div>
+        <span class="occ-pct" style="color:${occColor}">${occ}%</span>
+        <span style="font-size:10px;color:#9ca3af;display:flex;align-items:center;gap:4px"><span style="width:6px;height:6px;border-radius:50%;background:#22c55e;display:inline-block;animation:blink 1.8s ease-in-out infinite"></span>Live</span>
+      </div>
+    </div>
+    <div class="dist-bar">
+      ${bk > 0 ? `<div class="dist-seg" style="flex:${bk};background:#dc2626;opacity:0.6"></div>` : ''}
+      ${rs > 0 ? `<div class="dist-seg" style="flex:${rs};background:#2563eb;opacity:0.6"></div>` : ''}
+      ${cl > 0 ? `<div class="dist-seg" style="flex:${cl};background:#d97706;opacity:0.6"></div>` : ''}
+      ${em > 0 ? `<div class="dist-seg" style="flex:${em};background:#e5e7eb;opacity:0.8"></div>` : ''}
+    </div>
+  `;
+}
+
+function renderSidebar() {
+  document.getElementById('sb-list').innerHTML = depts.map(d => {
+    const ab = allBeds(d), total = ab.length, occ = cnt(ab,'booked') + cnt(ab,'reserved');
+    const active = selectedDept === d.id;
+    return `<div class="sb-item ${active?'active':''}" onclick="selectDept('${d.id}')"
+      style="border-left-color:${active?d.color:'transparent'}">
+      <span class="sb-item-icon">${d.icon}</span>
+      <div style="flex:1;min-width:0">
+        <div class="sb-item-name">${d.name}</div>
+        <div class="sb-item-occ">${occ}/${total} occupied</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderDepts() {
+  const shown = selectedDept ? depts.filter(d => d.id === selectedDept) : depts;
+  document.getElementById('show-all').style.display = selectedDept ? '' : 'none';
+
+  document.getElementById('depts').innerHTML = shown.map(d => {
+    const ab = allBeds(d), total = ab.length;
+    const bk = cnt(ab,'booked'), rs = cnt(ab,'reserved'), cl = cnt(ab,'inclean'), em = cnt(ab,'empty');
+    const occ = total > 0 ? Math.round(((bk+rs)/total)*100) : 0;
+    const occColor = occ>80?'#dc2626':occ>60?'#d97706':'#6b7280';
+    const isExp = expanded.has(d.id);
+
+    const pills = [
+      bk?`<div class="dept-stat"><span class="dept-stat-dot" style="background:#dc2626"></span><span style="color:#dc2626">${bk}</span></div>`:'',
+      rs?`<div class="dept-stat"><span class="dept-stat-dot" style="background:#2563eb"></span><span style="color:#2563eb">${rs}</span></div>`:'',
+      cl?`<div class="dept-stat"><span class="dept-stat-dot" style="background:#d97706"></span><span style="color:#d97706">${cl}</span></div>`:'',
+      em?`<div class="dept-stat"><span class="dept-stat-dot" style="background:#9ca3af"></span><span style="color:#9ca3af">${em}</span></div>`:'',
+    ].join('');
+
+    const rooms = d.rooms.map(room => {
+      const n = room.beds.length;
+      const cols = n<=4?2:3;
+      const rBk=cnt(room.beds,'booked'),rRs=cnt(room.beds,'reserved'),rCl=cnt(room.beds,'inclean'),rEm=cnt(room.beds,'empty');
+      const rStats = [
+        rBk?`<div class="room-stat"><div class="room-stat-dot" style="background:#dc2626"></div><span style="color:#dc2626">${rBk}</span></div>`:'',
+        rRs?`<div class="room-stat"><div class="room-stat-dot" style="background:#2563eb"></div><span style="color:#2563eb">${rRs}</span></div>`:'',
+        rCl?`<div class="room-stat"><div class="room-stat-dot" style="background:#d97706"></div><span style="color:#d97706">${rCl}</span></div>`:'',
+        rEm?`<div class="room-stat"><div class="room-stat-dot" style="background:#9ca3af"></div><span>${rEm}</span></div>`:'',
+      ].join('');
+
+      return `<div class="room-card" id="room-${room.id}" data-room="${room.id}"
+        ondragover="roomOver(event,this)" ondragleave="roomLeave(event,this)" ondrop="roomDrop(event,'${room.id}')">
+        <div class="room-hdr">
+          <div class="room-hdr-left">
+            <span class="room-name">${room.name}</span>
+            <span class="room-count">${n} beds</span>
+          </div>
+          <div class="room-stats">${rStats}</div>
+        </div>
+        <div class="room-body">
+          ${room.layout==='icu'?'<div class="nurses-station">Nurses Station</div>':''}
+          <div class="beds-grid" style="grid-template-columns:repeat(${cols},1fr)">
+            ${room.beds.map(b => bedCard(b)).join('')}
+          </div>
+          <div class="entrance">ENTRANCE</div>
+        </div>
+      </div>`;
+    }).join('');
+
+    return `<div class="dept-card" id="dept-${d.id}" style="margin-bottom:10px">
+      <div class="dept-hdr" onclick="toggleDept('${d.id}')" style="border-left:3px solid ${d.color}">
+        <div class="dept-hdr-left">
+          <span class="dept-icon">${d.icon}</span>
+          <div>
+            <div style="display:flex;align-items:center;gap:7px">
+              <span class="dept-title">${d.name}</span>
+              <span class="dept-badge">${d.short}</span>
+            </div>
+            <div class="dept-meta">${d.rooms.length} rooms · ${total} beds</div>
+          </div>
+        </div>
+        <div class="dept-hdr-right">
+          <div class="dept-stats">${pills}</div>
+          <div class="dept-occ">
+            <div class="dept-occ-bg"><div class="dept-occ-fill" style="width:${occ}%;background:${occColor}"></div></div>
+            <span class="dept-occ-pct" style="color:${occColor}">${occ}%</span>
+          </div>
+          <div class="dept-live"><span style="width:6px;height:6px;border-radius:50%;background:#22c55e;display:inline-block;animation:blink 1.8s ease-in-out infinite"></span> Live</div>
+          <span class="chevron ${isExp?'open':''}">▼</span>
+        </div>
+      </div>
+      <div class="dept-body ${isExp?'':'collapsed'}">${rooms}</div>
+    </div>`;
+  }).join('');
+
+  setupDrag();
+}
+
+function bedCard(bed) {
+  const s = S[bed.status];
+  const hasInfo = bed.status==='booked'||bed.status==='reserved';
+  const infoLbl = bed.status==='booked'?'Patient':'Info';
+  return `<div class="bed-card" id="bed-${bed.id}" data-bid="${bed.id}"
+    style="border-left-color:${s.color}"
+    draggable="true">
+    <div class="bed-top">
+      <div class="bed-icon-svg">${bedSVG(s.color)}</div>
+      <div>
+        <div class="bed-id">${bed.id}</div>
+        <div class="bed-status-lbl" style="color:${s.color}">${s.label}</div>
+      </div>
+    </div>
+    <div class="bed-actions">
+      ${hasInfo?`<button class="bed-btn" style="color:${s.color}" onclick="showInfo('${bed.id}')" onpointerdown="event.stopPropagation()">${infoLbl}</button>`:''}
+      <button class="bed-btn" onclick="showStatusMenu('${bed.id}')" onpointerdown="event.stopPropagation()">Status</button>
+    </div>
+  </div>`;
+}
+
+// ── INTERACTIONS ──────────────────────────────────────────────────────────────
+function selectDept(id) { selectedDept = selectedDept===id?null:id; render(); }
+function showAll() { selectedDept = null; render(); }
+
+function toggleDept(id) {
+  expanded.has(id)?expanded.delete(id):expanded.add(id);
+  renderDepts();
+}
+
+function findBed(bedId) {
+  for (const d of depts) for (const r of d.rooms) for (const b of r.beds)
+    if (b.id===bedId) return {d,r,b};
+  return null;
+}
+
+function showInfo(bedId) {
+  const found = findBed(bedId);
+  if (!found) return;
+  const {b} = found, s = S[b.status];
+  let body = '';
+
+  if (b.status==='booked'&&b.patient) {
+    const p=b.patient;
+    body=`<div class="modal-avatar">
+      <div class="modal-initials" style="background:${s.color}">${p.name.charAt(0)}</div>
+      <div><div class="modal-avatar-name">${p.name}</div><div class="modal-avatar-sub">${p.age} yrs · ${p.gender==='M'?'Male':'Female'}</div></div>
+    </div>
+    <div class="modal-grid">
+      <div><div class="modal-field-lbl">Diagnosis</div><div class="modal-field-val">${p.diagnosis}</div></div>
+      <div><div class="modal-field-lbl">Doctor</div><div class="modal-field-val">${p.doctor}</div></div>
+      <div><div class="modal-field-lbl">Admitted</div><div class="modal-field-val">${p.admitted}</div></div>
+      <div><div class="modal-field-lbl">Ward</div><div class="modal-field-val">${p.ward}</div></div>
+    </div>
+    ${p.notes?`<div class="modal-note"><strong>Notes: </strong>${p.notes}</div>`:''}`;
+  } else if (b.status==='reserved'&&b.reservation) {
+    const r=b.reservation;
+    body=`<div class="modal-avatar">
+      <div class="modal-initials" style="background:${s.color}">R</div>
+      <div><div class="modal-avatar-name">${r.for}</div><div class="modal-avatar-sub">Reserved Bed</div></div>
+    </div>
+    <div class="modal-grid">
+      <div><div class="modal-field-lbl">Reserved By</div><div class="modal-field-val">${r.by}</div></div>
+      <div><div class="modal-field-lbl">Reason</div><div class="modal-field-val">${r.reason}</div></div>
+      <div><div class="modal-field-lbl">Date</div><div class="modal-field-val">${r.date}</div></div>
+      <div><div class="modal-field-lbl">Time</div><div class="modal-field-val">${r.time}</div></div>
+      <div><div class="modal-field-lbl">Phone</div><div class="modal-field-val">${r.phone}</div></div>
+    </div>`;
+  }
+
+  openModal(`<button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-title"><span class="modal-title-dot" style="background:${s.color}"></span>Bed ${bedId} — ${s.label}</div>
+    ${body}`);
+}
+
+function showStatusMenu(bedId) {
+  const found = findBed(bedId);
+  if (!found) return;
+  const {b} = found;
+  const opts = Object.entries(S).map(([k,v])=>`
+    <button class="status-opt ${b.status===k?'active':''}"
+      style="${b.status===k?`border-color:${v.color};color:${v.color}`:''}--s-c:${v.color}"
+      onclick="changeStatus('${bedId}','${k}')">
+      <span class="status-opt-dot" style="background:${v.color}"></span>${v.label}
+    </button>`).join('');
+  openModal(`<button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-title">Change Status</div>
+    <div style="font-size:11px;color:var(--muted);font-family:monospace;margin-bottom:12px">${bedId}</div>
+    <div class="status-grid">${opts}</div>`);
+}
+
+function changeStatus(bedId, ns) {
+  for (const d of depts) for (const r of d.rooms) for (const b of r.beds)
+    if (b.id===bedId) { b.status=ns; if(ns!=='booked') b.patient=undefined; if(ns!=='reserved') b.reservation=undefined; }
+  closeModal(); render();
+}
+
+function openModal(html) { document.getElementById('modal').innerHTML=html; document.getElementById('overlay').classList.remove('hidden'); }
+function closeModal() { document.getElementById('overlay').classList.add('hidden'); }
+function maybeClose(e) { if(e.target===document.getElementById('overlay')) closeModal(); }
+
+document.getElementById('dark-btn').onclick = () => {
+  isDark=!isDark;
+  document.body.classList.toggle('dark',isDark);
+  document.getElementById('dark-btn').textContent=isDark?'☀️ Light Mode':'🌙 Dark Mode';
+  render();
+};
+
+// ── DRAG & DROP ───────────────────────────────────────────────────────────────
+function setupDrag() {
+  document.querySelectorAll('.bed-card').forEach(el => {
+    el.addEventListener('dragstart', e => {
+      dragBedId = el.dataset.bid;
+      e.dataTransfer.effectAllowed='move';
+      e.dataTransfer.setData('text',dragBedId);
+      setTimeout(()=>el.classList.add('dragging'),0);
+      const g=document.getElementById('ghost');
+      const found=findBed(dragBedId);
+      if(found){ g.innerHTML=bedCard(found.b); g.style.display='block'; e.dataTransfer.setDragImage(g,45,30); }
+    });
+    el.addEventListener('dragend',e=>{ el.classList.remove('dragging'); document.getElementById('ghost').style.display='none'; });
+  });
+}
+
+function roomOver(e,el) { e.preventDefault(); el.classList.add('dragover'); }
+function roomLeave(e,el) { if(!el.contains(e.relatedTarget)) el.classList.remove('dragover'); }
+function roomDrop(e,roomId) {
+  e.preventDefault();
+  document.querySelectorAll('.room-card').forEach(r=>r.classList.remove('dragover'));
+  const bid=e.dataTransfer.getData('text')||dragBedId;
+  if(!bid) return;
+  let srcRoom=null, srcIdx=-1;
+  for(const d of depts) for(const r of d.rooms){ const i=r.beds.findIndex(b=>b.id===bid); if(i!==-1){srcRoom=r;srcIdx=i;} }
+  if(!srcRoom||srcRoom.id===roomId) return;
+  let tgtRoom=null;
+  for(const d of depts) for(const r of d.rooms) if(r.id===roomId) tgtRoom=r;
+  if(!tgtRoom) return;
+  const [moved]=srcRoom.beds.splice(srcIdx,1);
+  tgtRoom.beds.push(moved);
+  render();
+}
+
+// ── REAL-TIME SIM ─────────────────────────────────────────────────────────────
+setInterval(()=>{
+  const empty=[],clean=[];
+  for(const d of depts) for(const r of d.rooms) for(const b of r.beds){
+    if(b.status==='empty') empty.push(b);
+    if(b.status==='inclean') clean.push(b);
+  }
+  if(clean.length&&Math.random()>.5) { clean[Math.floor(Math.random()*clean.length)].status='empty'; render(); }
+  else if(empty.length&&Math.random()>.7) { empty[Math.floor(Math.random()*empty.length)].status='inclean'; render(); }
+}, 30000);
+
+render();
+</script>
+</body>
+</html>
